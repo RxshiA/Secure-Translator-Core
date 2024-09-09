@@ -1,0 +1,12 @@
+{
+    "extends": [
+        "plugin:security/recommended"
+    ],
+    "plugins": [
+        "security"
+    ],
+    "env": {
+        "node": true,
+        "es6": true
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "extends": [
+        "plugin:react/recommended",
+        "plugin:security/recommended"
+    ],
+    "plugins": [
+        "react",
+        "security"
+    ],
+    "env": {
+        "browser": true,
+        "es6": true
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    }
+}
