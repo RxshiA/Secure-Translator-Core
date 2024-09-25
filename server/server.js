@@ -29,6 +29,17 @@ app.use(cors({
   }
 }));
 
+app.use(bodyParser.json());
+
+// Middleware to block access to cloud metadata IP address
+app.use((req, res, next) => {
+  if (req.ip === '169.254.169.254') {
+    res.status(403).send('Access denied');
+  } else {
+    next();
+  }
+});
+
 mongoose.connect(URL, {
   useNewUrlParser: true,
 });
