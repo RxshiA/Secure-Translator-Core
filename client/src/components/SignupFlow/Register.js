@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { registerUser, initializeGame } from "../../api/api";
 import styles from '../../style'
 
 export default class Register extends Component{
@@ -15,51 +16,31 @@ export default class Register extends Component{
 
     handleSubmit = (e) => {
         e.preventDefault();
-        const {fname,lname,email,password} = this.state;
-        console.log(fname,lname,email,password);
-        fetch("http://localhost:4500/user",{
-            method:"POST",
-            crossDomain:true,
-            headers:{
-                "Content-Type":"application/json",
-                Accept:'application/json',
-                "Access-Control-Allow-Origin":"*",
-            },
-            body:JSON.stringify({
-                first_name:fname,
-                last_name:lname,
-                email:email,
-                password:password
+        const { fname, lname, email, password } = this.state;
+        console.log(fname, lname, email, password);
+    
+        registerUser(fname, lname, email, password)
+            .then((res) => {
+                if (res.status === 200) {
+                    console.log(res.data);
+                    return initializeGame(email);
+                }
             })
-        }).then((res)=>{
-            if(res.ok){
-                return res.json()
-            }
-        }).then((jsonRes)=>console.log(jsonRes))
-        fetch("http://localhost:4500/game",{
-            method:"POST",
-            crossDomain:true,
-            headers:{
-                "Content-Type":"application/json",
-                Accept:'application/json',
-                "Access-Control-Allow-Origin":"*",
-            },
-            body:JSON.stringify({
-                email:email,
-                points:0
+            .then((res) => {
+                if (res.status === 200) {
+                    console.log(res.data);
+                    alert("Successfully Registered");
+                }
             })
-        }).then((res)=>{
-            if(res.ok){
-                return res.json()
-            }
-        }).then((jsonRes)=>console.log(jsonRes))
-        alert("Successfully Registered");
+            .catch((error) => {
+                console.error("Error during registration:", error);
+            });
     }
 
     render(){
         return(
             <div className="min-h-screen bg-no-repeat bg-cover bg-center"
-            style={{backgroundImage: "url('https://mycroft.ai/wp-content/uploads/2018/05/languages-edited.png')"}}>
+            style={{backgroundImage: "url('https://www.bkacontent.com/wp-content/uploads/2016/06/Depositphotos_31146757_l-2015.webp')"}}>
                 <div className="flex justify-end">
                     <div className="bg-white min-h-screen w-1/2 flex justify-center items-center">
                         <div>

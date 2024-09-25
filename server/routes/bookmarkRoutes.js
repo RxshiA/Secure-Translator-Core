@@ -1,9 +1,11 @@
+/* eslint-disable no-undef */
 const express = require("express");
 const router = express.Router();
 let Bookmark = require("../models/bookmarks");
+const authMiddleware = require("../middleware/authMiddleware");
 
 //adding a bookmark
-router.route("/add").post((req, res) => {
+router.route("/add", authMiddleware).post((req, res) => {
   const word = req.body.word;
   const definitions = req.body.definitions;
 
@@ -24,7 +26,7 @@ router.route("/add").post((req, res) => {
 });
 
 //deleting a bookmark
-router.route("/delete/:word").post((req, res) => {
+router.route("/delete/:word", authMiddleware).post((req, res) => {
   let word = req.params.word;
   let filter = { word: word };
 
@@ -39,7 +41,7 @@ router.route("/delete/:word").post((req, res) => {
 });
 
 //retrieving all the bookmarks
-router.route("/").get((req, res) => {
+router.route("/", authMiddleware).get((req, res) => {
   Bookmark.find()
     .then((result) => {
       res.json(result);
@@ -51,7 +53,7 @@ router.route("/").get((req, res) => {
 });
 
 //search with the bookmarks
-router.route("/search/:word").get((req, res) => {
+router.route("/search/:word", authMiddleware).get((req, res) => {
   let word = req.params.word;
 
   Bookmark.findOne({ word: word })

@@ -1,9 +1,11 @@
+/* eslint-disable no-undef */
 const express = require("express")
 const router = express.Router()
 const Game = require("../models/gameModel")
 const pdfTemplate = require('../models/gameReport')
 const pdf = require('html-pdf')
 const path = require('path')
+const authMiddleware = require('../middleware/authMiddleware')
 
 router.post("/", async (req, res) => {
     const { email, points } = req.body;
@@ -20,7 +22,7 @@ router.post("/", async (req, res) => {
     })
 });
 
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
     try {
         const games = await Game.find();
         res.json(games);
@@ -30,7 +32,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/:email", async (req, res) => {
+router.get("/:email", authMiddleware, async (req, res) => {
     const email = req.params.email;
     try {
         const data = await Game.find({ email: email });
@@ -44,7 +46,7 @@ router.get("/:email", async (req, res) => {
     }
 });
 
-router.put("/:email", async (req, res) => {
+router.put("/:email", authMiddleware, async (req, res) => {
     const email = req.params.email;
     const { points } = req.body;
 

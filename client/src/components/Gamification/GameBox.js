@@ -1,5 +1,7 @@
-import React, { Component }  from "react";
+import React, { Component } from "react";
 import { generate, count } from "random-words";
+import BrowserStorage from "../../helper/BrowserStorage";
+import { fetchProfile, fetchUserScore, fetchRandomWord, checkTranslation, endGame } from "../../api/api";
 
 class GameBox extends Component {
 
@@ -17,45 +19,26 @@ class GameBox extends Component {
     };
   }
 
-  componentDidMount(){
-    fetch("http://localhost:4500/user/profile",{
-        method:"POST",
-        crossDomain:true,
-        headers:{
-            "Content-Type":"application/json",
-            Accept:'application/json',
-            "Access-Control-Allow-Origin":"*",
-        },
-        body:JSON.stringify({
-            token:localStorage.getItem("token")
-        })
-    })
-    .then((res)=>res.json())
-    .then((data)=>{
+  componentDidMount() {
+    fetchProfile(BrowserStorage.getLocalStorage("token"))
+      .then((res) => res.data)
+      .then((data) => {
         console.log(data);
-        this.setState({email:data.data.email})
-        if(data.data=='token expired'){
-            alert("Login Again");
-            localStorage.clear();
-            window.location.href="./login";
-        }else{
+        this.setState({ email: data.data.email });
+        if (data.data === "token expired") {
+          alert("Login Again");
+          BrowserStorage.clearLocalStorage();
+          window.location.href = "./login";
+        } else {
           this.fetchUserScore(data.data.email);
         }
-    })
+      });
   }
 
   fetchUserScore(email) {
     this.setState({ isLoading: true });
-    fetch("http://localhost:4500/game/" + email, {
-      method: "GET",
-      crossDomain: true,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    })
-      .then((res) => res.json())
+    fetchUserScore(email)
+      .then((res) => res.data)
       .then((data) => {
         const points = data[0].points;
         let level;
@@ -72,32 +55,32 @@ class GameBox extends Component {
         }
 
         if (level > this.state.level) {
-          const dimmer = document.createElement('div');
-          dimmer.style.position = 'fixed';
-          dimmer.style.top = '0';
-          dimmer.style.left = '0';
-          dimmer.style.width = '100%';
-          dimmer.style.height = '100%';
-          dimmer.style.background = 'rgba(0, 0, 0, 0.5)'; 
-          dimmer.style.zIndex = '9998'; 
-      
-          const alertContainer = document.createElement('div');
-          alertContainer.style.position = 'fixed';
-          alertContainer.style.top = '50%';
-          alertContainer.style.left = '50%';
-          alertContainer.style.transform = 'translate(-50%, -50%)';
-          alertContainer.style.background = '#4CAF50';
-          alertContainer.style.color = 'white';
-          alertContainer.style.padding = '20px';
-          alertContainer.style.borderRadius = '10px';
-          alertContainer.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-          alertContainer.style.zIndex = '9999';
-      
+          const dimmer = document.createElement("div");
+          dimmer.style.position = "fixed";
+          dimmer.style.top = "0";
+          dimmer.style.left = "0";
+          dimmer.style.width = "100%";
+          dimmer.style.height = "100%";
+          dimmer.style.background = "rgba(0, 0, 0, 0.5)";
+          dimmer.style.zIndex = "9998";
+
+          const alertContainer = document.createElement("div");
+          alertContainer.style.position = "fixed";
+          alertContainer.style.top = "50%";
+          alertContainer.style.left = "50%";
+          alertContainer.style.transform = "translate(-50%, -50%)";
+          alertContainer.style.background = "#4CAF50";
+          alertContainer.style.color = "white";
+          alertContainer.style.padding = "20px";
+          alertContainer.style.borderRadius = "10px";
+          alertContainer.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+          alertContainer.style.zIndex = "9999";
+
           alertContainer.innerHTML = `<p>Congratulations! You've reached Level ${level}</p>`;
-      
+
           document.body.appendChild(dimmer);
           document.body.appendChild(alertContainer);
-      
+
           setTimeout(() => {
             document.body.removeChild(dimmer);
             document.body.removeChild(alertContainer);
@@ -107,10 +90,10 @@ class GameBox extends Component {
         this.setState({
           points: points,
           level: level,
-          isLoading: false
+          isLoading: false,
         });
 
-      console.log(data);
+        console.log(data);
       })
       .catch((err) => {
         console.error("Error fetching user score:", err);
@@ -123,19 +106,11 @@ class GameBox extends Component {
     const englishWord = generate();
     this.setState({ englishWord, userTranslation: "", feedback: "" });
 
-    fetch("http://localhost:4500/game/"+this.state.email,{
-      method:"GET",
-      crossDomain:true,
-      headers:{
-        "Content-Type":"application/json",
-        Accept:'application/json',
-        "Access-Control-Allow-Origin":"*",
-      },
-    })
-    .then((res)=>res.json())
-    .then((data) => {
-      this.setState({ isLoading: false });
-    })
+    fetchRandomWord(this.state.email)
+      .then((res) => res.data)
+      .then((data) => {
+        this.setState({ isLoading: false });
+      });
   };
 
   checkTranslation = () => {
@@ -147,54 +122,31 @@ class GameBox extends Component {
     this.setState({ isLoading: true });
     const { userTranslation, englishWord, points } = this.state;
 
-    fetch("http://localhost:4500/translate",{
-      method:"POST",
-      crossDomain:true,
-      headers:{
-        "Content-Type":"application/json",
-        Accept:'application/json',
-        "Access-Control-Allow-Origin":"*",
-      },
-      body:JSON.stringify({
-        text:englishWord,
-        language:'si'
-      })
-    })
-    .then((res)=>res.json())
+    checkTranslation(englishWord, 'si')
+      .then((res) => res.data)
       .then((data) => {
         if (data.translation === userTranslation) {
           // Correct translation
           this.setState({
             points: points + 10,
             feedback: "Correct translation! You earned 10 points.",
-            isLoading: false
+            isLoading: false,
           });
         } else {
           // Incorrect translation
           this.setState({
             points: points - 10,
             feedback: "Incorrect translation! You lost 10 points.",
-            isLoading: false
+            isLoading: false,
           });
         }
-      })
+      });
   };
 
   endGame = () => {
     const { points } = this.state;
     alert("Game ended! Your score is " + points);
-    fetch("http://localhost:4500/game/"+this.state.email,{
-      method:"PUT",
-      crossDomain:true,
-      headers:{
-        "Content-Type":"application/json",
-        Accept:'application/json',
-        "Access-Control-Allow-Origin":"*",
-      },
-      body:JSON.stringify({
-        points:points
-      })
-    })
+    endGame(this.state.email, points);
   };
 
   render() {
@@ -208,7 +160,7 @@ class GameBox extends Component {
               <div className="flex flex-wrap items-center">
                 <div className="relative w-full max-w-full flex-grow flex-1">
                   <h6 className="uppercase text-blueGray-400 mb-1 text-xs font-semibold">
-                    Current 
+                    Current
                   </h6>
                   <h2 className="text-blueGray-700 text-xl font-semibold">
                     Points : {points}
@@ -240,9 +192,8 @@ class GameBox extends Component {
                     placeholder="English Word"
                   />
                   <input
-                    className={`w-5/12 h-12 p-2 border rounded ${
-                      !hasGeneratedWord ? 'border-red-500' : ''
-                    }`}
+                    className={`w-5/12 h-12 p-2 border rounded ${!hasGeneratedWord ? 'border-red-500' : ''
+                      }`}
                     type="text"
                     value={userTranslation}
                     onChange={(e) => this.setState({ userTranslation: e.target.value })}
@@ -254,18 +205,18 @@ class GameBox extends Component {
                   />
                 </div>
                 <div className="flex justify-between items-center mb-4">
-                  <button 
+                  <button
                     className="ml-20 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     onClick={this.checkTranslation}
                     disabled={!hasGeneratedWord}
                   >Check Translation</button>
                   <div>{feedback}</div>
-                  <button 
+                  <button
                     className="mr-20 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
                     onClick={this.fetchRandomWord}>Generate New Word</button>
-                </div><br/>
+                </div><br />
                 <div className="text-center">
-                  <button 
+                  <button
                     className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded inline-block"
                     onClick={this.endGame}>End Game</button>
                 </div>

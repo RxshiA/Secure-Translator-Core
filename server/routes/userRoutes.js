@@ -3,8 +3,9 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+const authMiddleware = require("../middleware/authMiddleware");
 
-const JWT_SECRET = "asdcasdcqwe211SDCCASCASD"
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Register
 router.post("/", async (req, res) => {
@@ -36,58 +37,69 @@ router.post("/", async (req, res) => {
             email,
             password: passwordHash,
         });
-        const savedUser = await newUser.save();
-        res.json(savedUser);
+        await newUser.save();
+        jwt.sign({ user: newUser }, JWT_SECRET, { expiresIn: "24h" }, (err, token) => {
+            if (err) throw err;
+            res.json({ token });
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
 //UserProfile
+//UserProfile
 router.post("/profile", async (req, res) => {
     const { token } = req.body;
     try {
-        const user = jwt.verify(token, JWT_SECRET, (err,res)=>{
-            if(err)
-                return "token expired";
-            else
-                return res;
-        });
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.user.id;
+
+        const user = await User.findById(userId).select("-password");
+        if (!user) {
+            return res.status(404).json({ status: "error", data: "User not found" });
+        }
         console.log(user);
-        if(user === "token expired")
-            return res.send({status:"error", data:"token expired"});
-        const user_email = user.email;
-        User.findOne({ email: user_email }).then((data) => {
-            res.send({status:"ok", data:data});
-        }).catch((err) => {
-            res.send({status:"error", data:err});
-        });
+        res.send({ status: "ok", data: user });
     } catch (err) {
+        if (err.name === 'TokenExpiredError') {
+            return res.send({ status: "error", data: "token expired" });
+        }
         res.status(500).json({ error: err.message });
     }
 });
 
 //Login
 router.post("/login", async (req, res) => {
-    try{
-        const {email, password} = req.body;
-        const user = await User.findOne({email:email});
-        if(!user)
-            return res.status(400).json({msg:"No account with this email has been registered."});
-        if(await bcrypt.compare(password, user.password)){
-            const token = jwt.sign({email:user.email}, JWT_SECRET, {
-                expiresIn: "2days"
+    try {
+        const { email, password } = req.body;
+        const user = await User.findOne({ email: email });
+        if (!user)
+            return res.status(400).json({ msg: "No account with this email has been registered." });
+        if (await bcrypt.compare(password, user.password)) {
+            const token = jwt.sign({ user: { id: user._id } }, JWT_SECRET, {
+                expiresIn: "24h"
             });
-            if(res.status(201))
-                return res.json({status: "ok", data: token});
-            else    
-                return res.json({error:"Invalid credentials"});
+            if (res.status(201))
+                return res.json({ status: "ok", data: token });
+            else
+                return res.json({ error: "Invalid credentials" });
         }
-        res.json({error:"Invalid credentials"});
+        res.json({ error: "Invalid credentials" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
+//Verify a token and return the user
+router.post("/verify-token", authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select("-password");
+        if (!user) return res.status(400).json({ msg: "Token is not valid." });
+        res.json({ status: "ok", data: user });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 module.exports = router;
