@@ -13,6 +13,8 @@ const PORT = process.env.PORT || 8070;
 // Disable the X-Powered-By header
 app.disable('x-powered-by');
 
+// Define allowed origins
+const allowedOrigins = ['http://localhost:3000'];
 const URL = process.env.MONGODB_URL;
 
 mongoose.connect(URL, {
