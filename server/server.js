@@ -76,6 +76,9 @@ app.use(helmet());
 // Set X-Frame-Options header to DENY
 app.use(helmet.frameguard({ action: 'deny' }));
 
+// Set X-Content-Type-Options header to nosniff
+app.use(helmet.noSniff());
+
 const URL = process.env.MONGODB_URL;
 
 mongoose.connect(URL, {
