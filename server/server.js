@@ -79,6 +79,19 @@ app.use(helmet.frameguard({ action: 'deny' }));
 // Set X-Content-Type-Options header to nosniff
 app.use(helmet.noSniff());
 
+// Configure Content Security Policy
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+      frameAncestors: ["'none'"], // Prevent framing by any site
+    },
+  })
+);
+
 const URL = process.env.MONGODB_URL;
 
 mongoose.connect(URL, {
