@@ -49,6 +49,27 @@ app.use((req, res, next) => {
   }
 });
 
+// Middleware to sanitize responses
+app.use((req, res, next) => {
+  const oldSend = res.send;
+  res.send = function (data) {
+    if (typeof data === 'string') {
+      try {
+        const jsonData = JSON.parse(data);
+        // Sanitize timestamps if necessary
+        if (jsonData.timestamp) {
+          delete jsonData.timestamp;
+        }
+        arguments[0] = JSON.stringify(jsonData);
+      } catch (e) {
+        // Not JSON, do nothing
+      }
+    }
+    oldSend.apply(res, arguments);
+  };
+  next();
+});
+
 const URL = process.env.MONGODB_URL;
 
 mongoose.connect(URL, {
