@@ -73,6 +73,9 @@ app.use((req, res, next) => {
 // Use Helmet to set security headers
 app.use(helmet());
 
+// Set X-Frame-Options header to DENY
+app.use(helmet.frameguard({ action: 'deny' }));
+
 const URL = process.env.MONGODB_URL;
 
 mongoose.connect(URL, {
