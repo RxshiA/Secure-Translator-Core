@@ -15,7 +15,6 @@ app.disable('x-powered-by');
 
 // Define allowed origins
 const allowedOrigins = ['http://localhost:3000'];
-const URL = process.env.MONGODB_URL;
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -39,6 +38,18 @@ app.use((req, res, next) => {
     next();
   }
 });
+
+// Middleware to restrict access to sensitive files
+app.use((req, res, next) => {
+  const sensitiveFiles = ['.env', '.git', '.gitignore', 'node_modules'];
+  if (sensitiveFiles.some(file => req.url.includes(file))) {
+    res.status(403).send('Access denied');
+  } else {
+    next();
+  }
+});
+
+const URL = process.env.MONGODB_URL;
 
 mongoose.connect(URL, {
   useNewUrlParser: true,
