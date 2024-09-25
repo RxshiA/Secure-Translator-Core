@@ -70,6 +70,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Use Helmet to set security headers
+app.use(helmet());
+
 const URL = process.env.MONGODB_URL;
 
 mongoose.connect(URL, {
