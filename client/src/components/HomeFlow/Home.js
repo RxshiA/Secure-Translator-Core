@@ -64,20 +64,21 @@ export default class Home extends Component {
     const selectTag = document.querySelectorAll("select");
 
     selectTag.forEach((tag, id) => {
-      for (let language_code in languages) {
+      Object.entries(languages).forEach(([language_code, language_name]) => {
         let selected =
           id === 0
             ? language_code === "en-GB"
               ? "selected"
               : ""
             : language_code === "hi-IN"
-            ? "selected"
-            : "";
-        let option = `<option ${selected} value="${language_code}">${languages[language_code]}</option>`;
-        // tag.insertAdjacentHTML('beforeend', option); //doubles the selcetcion
-      }
+              ? "selected"
+              : "";
+        let option = `<option ${selected} value="${language_code}">${language_name}</option>`;
+        // tag.insertAdjacentHTML('beforeend', option); // doubles the selection
+      });
     });
   }
+
 
   handleInputChange = (event, inputType) => {
     const { selectedLanguageFrom, selectedLanguageTo } = this.state;
@@ -202,9 +203,9 @@ export default class Home extends Component {
                       this.setState({ selectedLanguageFrom: e.target.value })
                     }
                   >
-                    {Object.keys(languages).map((languageCode) => (
+                    {Object.entries(languages).map(([languageCode, languageName]) => (
                       <option key={languageCode} value={languageCode}>
-                        {languages[languageCode]}
+                        {languageName}
                       </option>
                     ))}
                   </select>
@@ -219,9 +220,9 @@ export default class Home extends Component {
                       this.setState({ selectedLanguageTo: e.target.value })
                     }
                   >
-                    {Object.keys(languages).map((languageCode) => (
+                    {Object.entries(languages).map(([languageCode, languageName]) => (
                       <option key={languageCode} value={languageCode}>
-                        {languages[languageCode]}
+                        {languageName}
                       </option>
                     ))}
                   </select>
@@ -238,7 +239,7 @@ export default class Home extends Component {
               <button>Dictionary</button>
             </Link>
 
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 bg-white rounded-xl h-full mt-3">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 bg-white rounded-xl h-full mt-3">
               <thead>
                 <tr>
                   <th

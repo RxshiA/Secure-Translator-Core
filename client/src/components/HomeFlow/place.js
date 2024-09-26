@@ -176,7 +176,7 @@ export default class Home extends Component {
           <button onClick={this.handleTranslateClick}>Translate Text</button>
 
 
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 bg-white rounded-xl h-full mt-3">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 bg-white rounded-xl h-full mt-3">
                     <thead>
                         <tr>
                         <th
