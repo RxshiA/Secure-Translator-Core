@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { Component } from 'react'
 import { fetchProfile } from '../../api/api';
 import Sidebar from '../../views/Sidebar';

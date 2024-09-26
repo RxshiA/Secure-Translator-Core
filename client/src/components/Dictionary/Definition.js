@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect, Fragment } from "react";
 import { useParams } from "react-router-dom";
 import Sidebar from "../../views/Sidebar";

@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 module.exports = (Game) => {
     const today = new Date()
     console.log(Game)
