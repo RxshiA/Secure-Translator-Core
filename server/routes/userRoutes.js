@@ -72,7 +72,7 @@ router.post("/oauth-signup", async (req, res) => {
       first_name,
       last_name,
       email,
-      provider: Provider.GOOGLE,
+      provider: "google",
       googleId: googleId,
     });
     await newUser.save();
