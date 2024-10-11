@@ -55,25 +55,24 @@ export default class Register extends Component {
 
     doSignInWithGoogle()
       .then((response) => {
-        const googleUserData = {
-          status: "ok",
-          data: response.tokenId,
-        }.then(
-          registerOauthUser(
-            response._tokenResponse.firstName,
-            response._tokenResponse.lastName,
-            response._tokenResponse.email,
-            response._tokenResponse.localId
-          )
-            .then((res) => res.data)
-            .then((data) => {
-              console.log(data);
-              if (data.status === "ok") {
-                this.handleSuccessfulLogin(data);
-              }
-            })
-        );
-        this.handleSuccessfulLogin(googleUserData);
+        registerOauthUser(
+          response._tokenResponse.firstName,
+          response._tokenResponse.lastName,
+          response._tokenResponse.email,
+          response._tokenResponse.localId
+        )
+          .then((res) => {
+            if (res.status === 200) {
+              console.log(res.data);
+              return initializeGame(response._tokenResponse.email);
+            }
+          })
+          .then((res) => {
+            if (res.status === 200) {
+              console.log(res.data);
+              alert("Successfully Registered");
+            }
+          });
       })
       .catch((error) => {
         console.error("Google Sign-In Error:", error);

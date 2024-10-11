@@ -45,23 +45,17 @@ export default class Login extends Component {
 
     doSignInWithGoogle()
       .then((response) => {
-        const googleUserData = {
-          status: "ok",
-          data: response.tokenId,
-        }.then(
-          oauthLogin(
-            response._tokenResponse.email,
-            response._tokenResponse.localId
-          )
-            .then((res) => res.data)
-            .then((data) => {
-              console.log(data);
-              if (data.status === "ok") {
-                this.handleSuccessfulLogin(data);
-              }
-            })
-        );
-        this.handleSuccessfulLogin(googleUserData);
+        oauthLogin(
+          response._tokenResponse.email,
+          response._tokenResponse.localId
+        )
+          .then((res) => res.data)
+          .then((data) => {
+            console.log(data);
+            if (data.status === "ok") {
+              this.handleSuccessfulLogin(data);
+            }
+          });
       })
       .catch((error) => {
         console.error("Google Sign-In Error:", error);
