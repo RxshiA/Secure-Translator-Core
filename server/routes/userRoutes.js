@@ -5,7 +5,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const authMiddleware = require("../middleware/authMiddleware");
-const { Provider } = require("../constants/common.js");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -54,11 +53,11 @@ router.post("/email-signup", async (req, res) => {
   }
 });
 
+//Register - Google OAuth
 router.post("/oauth-signup", async (req, res) => {
   try {
     let { first_name, last_name, email, googleId } = req.body;
 
-    // validate
     if (!first_name || !email || !googleId || !last_name)
       return res.status(400).json({ msg: "Not all fields have been entered." });
 
@@ -89,8 +88,8 @@ router.post("/oauth-signup", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-//UserProfile
-//UserProfile
+
+//User Profile details
 router.post("/profile", async (req, res) => {
   const { token } = req.body;
   try {
@@ -133,6 +132,7 @@ router.post("/email-login", async (req, res) => {
   }
 });
 
+//Login - Google OAuth
 router.post("/oauth-login", async (req, res) => {
   try {
     const { email, googleId } = req.body;
