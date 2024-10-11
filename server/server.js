@@ -27,6 +27,17 @@ app.use((req, res, next) => {
   }
 });
 
+
+
+// Rate limiting to prevent abuse
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests, please try again later.'
+});
+app.use(limiter);
+
+
 // Serve static files with additional security
 app.use(express.static('public', {
   dotfiles: 'deny'
@@ -80,18 +91,6 @@ app.use(cors({
 }));
 
 
-app.use(bodyParser.json());
-
-// Middleware to block requests to the cloud metadata service
-app.use((req, res, next) => {
-  if (req.hostname === '169.254.169.254' || req.get('Host') === '169.254.169.254') {
-    res.status(403).send('Access denied');
-  } else {
-    next();
-  }
-});
-
-
 // Set X-Frame-Options header to DENY
 app.use(helmet.frameguard({ action: 'deny' }));
 
@@ -110,6 +109,20 @@ app.use(
     },
   })
 );
+
+
+app.use(bodyParser.json());
+
+// Middleware to block requests to the cloud metadata service
+app.use((req, res, next) => {
+  if (req.hostname === '169.254.169.254' || req.get('Host') === '169.254.169.254') {
+    res.status(403).send('Access denied');
+  } else {
+    next();
+  }
+});
+
+
 
 const URL = process.env.MONGODB_URL;
 
