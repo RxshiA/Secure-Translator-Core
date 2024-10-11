@@ -1,25 +1,29 @@
-import React from 'react';
+import React from "react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import Login from './components/SignupFlow/Login';
-import Register from './components/SignupFlow/Register';
-import Home from './components/HomeFlow/Home';
-import Profile from './components/SignupFlow/Profile';
-import Game from './components/Gamification/Game';
-import Translation from './components/SinglishTyping/singlish';
-import Definition from './components/Dictionary/Definition';
-import Bookmarks from './components/Dictionary/Bookmarks';
-import TokenVerifierWrapper from './auth/TokenVerifierWrapper';
+import Login from "./components/SignupFlow/Login";
+import Register from "./components/SignupFlow/Register";
+import Home from "./components/HomeFlow/Home";
+import Profile from "./components/SignupFlow/Profile";
+import Game from "./components/Gamification/Game";
+import Translation from "./components/SinglishTyping/singlish";
+import Definition from "./components/Dictionary/Definition";
+import Bookmarks from "./components/Dictionary/Bookmarks";
+import TokenVerifierWrapper from "./auth/TokenVerifierWrapper";
 
 function App() {
-  const isLoggedIn = localStorage.getItem('loggedIn');
+  const isLoggedIn = localStorage.getItem("loggedIn");
 
   return (
     <Router>
       <TokenVerifierWrapper />
       <Routes>
-        <Route exact path="/" element={isLoggedIn === "true" ? <Home /> : <Login />} />
+        <Route
+          exact
+          path="/"
+          element={isLoggedIn === "true" ? <Home /> : <Login />}
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
