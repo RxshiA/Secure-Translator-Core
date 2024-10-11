@@ -27,14 +27,18 @@ app.use((req, res, next) => {
   }
 });
 
-// Middleware to sanitize responses
+// Serve static files with additional security
+app.use(express.static('public', {
+  dotfiles: 'deny'
+}));
+
+// Middleware to sanitize responses and handle errors
 app.use((req, res, next) => {
   const oldSend = res.send;
   res.send = function (data) {
     if (typeof data === 'string') {
       try {
         const jsonData = JSON.parse(data);
-        // Sanitize timestamps if necessary
         if (jsonData.timestamp) {
           delete jsonData.timestamp;
         }
