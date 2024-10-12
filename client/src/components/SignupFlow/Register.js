@@ -60,19 +60,14 @@ export default class Register extends Component {
           response._tokenResponse.lastName,
           response._tokenResponse.email,
           response._tokenResponse.localId
-        )
-          .then((res) => {
-            if (res.status === 200) {
-              console.log(res.data);
-              return initializeGame(response._tokenResponse.email);
-            }
-          })
-          .then((res) => {
-            if (res.status === 200) {
-              console.log(res.data);
-              alert("Successfully Registered");
-            }
-          });
+        ).then((res) => {
+          if (res.status === 200) {
+            console.log(res.data);
+            alert("Successfully Registered");
+            window.location.href = "./login";
+            return initializeGame(response._tokenResponse.email);
+          }
+        });
       })
       .catch((error) => {
         console.error("Google Sign-In Error:", error);
